@@ -1,0 +1,28 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+contract tech4dev{
+address payable public owner;
+//saving  owner in the state variable//
+constructor(){
+    owner = payable(msg.sender);
+}
+receive ()external payable{}
+//let create get function//
+
+function getbalance() public view returns(uint){
+    return address(this).balance;
+
+}
+//withdraw function by the owner, mgs.sender is owner//
+function withdraw(uint _amount) public{
+    require(msg.sender == owner, 'thief you are not the owner');
+    //method  that will transfer to the owner, transfer function, amount
+    payable(msg.sender).transfer(_amount);
+}
+//Anybody canwithdraw function//
+function Anybodycanwithdraw(uint _amount, address payable _to)public{
+    _to.transfer(_amount);
+
+}
+}
+
