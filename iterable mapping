@@ -1,0 +1,34 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+contract tech4dev{
+    mapping(address => uint) public balances;
+    mapping(address => bool)public inserted;
+    //dynamic array//
+    address[] public keys;
+    //create function to insert address and amount//
+    function set(address _x, uint amount)public{
+        //update the balances mapping with address and amount//
+        balances[_x] = amount;
+        if(!inserted[_x]){
+            inserted[_x] =true;
+            keys.push(_x);
+        }
+    }
+    //to get the length of the array//
+
+    function getSize() public view returns(uint){
+        return keys.length;
+    }
+    //to get the first index in our keys array //
+    function firstIndex() public view returns(uint){
+        return balances[keys[0]];
+    }
+// length-1 is to capture the last element of an array//
+function LastItem() public view returns(uint){
+return balances[keys[keys.length -1]];
+
+}
+function anyindex(uint _x) public view returns(uint){
+    return balances[keys[_x]];
+}
+}
