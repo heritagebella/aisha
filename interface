@@ -1,0 +1,27 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+interface IGlo {
+    function getAge()external pure returns(uint);
+    function getHeight()external pure returns(uint);
+    function getName()external pure returns(string memory);
+    function getCar()external pure returns(string memory);
+    
+}
+contract maincontract{
+
+   address private constant Datacontractaddress = 0xd8b934580fcE35a11B58C6D73aDeE468a2833fa8;
+
+   function getAge()external pure returns(uint){
+   return IGlo(Datacontractaddress).getAge();
+   }
+
+   
+function getHeight()external pure returns(uint){
+   return IGlo(Datacontractaddress).getHeight();
+}
+function getName()external pure returns(string memory){
+   return IGlo(Datacontractaddress).getName();
+
+}
+function getCar()external pure returns(string memory){
+   return IGlo(Datacontractaddress).getCar();
