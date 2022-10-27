@@ -1,0 +1,31 @@
+pragma solidity ^0.8.0;
+interface Ibaby{
+    function count() external returns(uint);
+    function increase1()external;
+    function increase2and1()external;
+    function decrease1()external;
+    function decrease2() external;
+
+}
+
+contract tech{
+    address private constant counter =0xf8e81D47203A594245E36C48e151709F0C19fBe8;
+    function increase1() external{
+        Ibaby(counter).increase1();
+        
+    }
+    function increase2and1() external{
+        Ibaby(counter).increase2and1();
+}
+function decrease1() external{
+        Ibaby(counter).decrease1();
+}
+function decrease2() external{
+        Ibaby(counter).decrease2();
+                
+}
+function count()external returns(uint){
+    return Ibaby(counter).count();
+
+}         
+}
