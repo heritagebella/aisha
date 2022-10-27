@@ -1,0 +1,22 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+contract Microsoft{
+
+uint public count;
+function increase1() public{
+    count +=1;
+
+}
+function increase2and1()public{
+    count +=2;
+    count +=1;
+
+}
+function decrease1()public{
+count -=1;
+
+}
+function decrease2()public{
+    count -=2;
+}
+}
