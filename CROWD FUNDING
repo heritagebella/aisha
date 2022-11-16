@@ -1,0 +1,99 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+interface IERC20{
+ function transfer(address, uint) external returns(bool);
+ function transferFrom(address, address, uint) external returns(bool);
+}
+contract tech4dev{
+event Launch(uint id, address indexed creator, uint goal, uint32 startAt,uint32 endAt);
+event Cancel(uint id);
+event Pledge(uint indexed id,address indexed caller, uint amount);
+event Unpledge(uint indexed id, address indexed caller, uint amount);
+event Claim(uint id);
+event Refund(uint id, address indexed caller, uint amount);
+ 
+struct Campaign {
+        address creator;  
+        uint goal;  
+        uint pledged; //the
+        uint32 startAt; //time the campaign is starting
+        uint32 endAt;  // time the campaign is ending(block.timestamp
+        bool claimed; //true if goal was reached andcreator has claimed the token
+}
+IERC20 public immutable token;
+uint public count; // total count of campaigns created, it is used to generate id for the new campaign
+mapping(uint => Campaign) public campaigns; //mapping  from id to Campaign
+mapping(uint => mapping(address => uint)) public pledgedAmount; //mapping from campaign id=>pledger=>amount pledged
+constructor(address _token){
+token = IERC20(_token);
+}
+function launch(uint _goal, uint32 _startAt, uint32 _endAt)external{
+require(_startAt >= block.timestamp,'startAt < now');   //set a condition that startAt is greater or equal to blocktimestamp which is now
+require(_endAt >= _startAt, 'endAt < startAt'); //set a condition that endAt is greater than startAT 
+require(_endAt <= block.timestamp + 90 days,'endAt > max duration');
+
+count+=1;
+//this is a struct that will take an input and equate with our mapping, while pledged is 0 by default //
+campaigns  [count]=Campaign (msg.sender, _goal, 0, _startAt, _endAt, false);
+emit Launch(count, msg.sender, _goal, _startAt, _endAt);
+}
+
+function cancel(uint _id) external {
+Campaign memory campaign = campaigns[_id]; // indexing with an id in mapping campaigns,
+require(campaign.creator == msg.sender, "You are not the creator");
+require(block.timestamp < campaign.startAt, "The campaign has started");
+ 
+delete campaigns[_id];
+emit Cancel(_id);
+}
+
+ 
+function pledge(uint _id, uint _amount) external {
+Campaign storage campaign = campaigns[_id];// indexing with an id in mapping campaigns, to update
+require(block.timestamp >= campaign.startAt, "Campaign has not started");
+require(block.timestamp <= campaign.endAt, "Campaign has ended");
+campaign.pledged += _amount;//gave  access to struct
+pledgedAmount[_id][msg.sender] += _amount; 
+token.transferFrom(msg.sender, address(this), _amount);
+emit Pledge(_id, msg.sender, _amount);
+ 
+}
+ 
+function unpledge(uint _id, uint _amount) external{
+Campaign storage campaign = campaigns[_id]; //indexing with an id in mapping campaigns
+require(block.timestamp <= campaign.endAt, "Campaign has ended");
+campaign.pledged -= _amount; //deducted from the total supply
+pledgedAmount[_id][msg.sender] -= _amount;// deducted from the msg.sender
+ 
+token.transfer(msg.sender, _amount);
+emit Unpledge(_id, msg.sender, _amount); 
+}
+ 
+function claim(uint _id) external {
+Campaign storage campaign = campaigns[_id]; //indexing with an id in mapping campaigns
+require(campaign.creator == msg.sender, "You are not the owner");
+require(block.timestamp > campaign.endAt, "campaign has not ended");
+require(campaign.pledged >= campaign.goal, "pledged < goal");
+require(!campaign.claimed, "Campaign has been claimed");
+ 
+campaign.claimed = true;
+token.transfer(campaign.creator, campaign.pledged);
+emit Claim(_id);
+}
+ 
+function refund(uint _id) external {
+Campaign memory campaign = campaigns[_id]; //indexing with an id in mapping campaigns
+require(block.timestamp > campaign.endAt, "It has not ended");
+require(campaign.pledged < campaign.goal, "pledged >= goal");
+ 
+uint balance = pledgedAmount[_id][msg.sender];
+pledgedAmount[_id][msg.sender] = 0;
+token.transfer(msg.sender, balance);
+emit Refund(_id, msg.sender, balance);
+ 
+}
+ 
+
+
+}
+
